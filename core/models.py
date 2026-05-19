@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
+from cloudinary_storage.storage import VideoMediaCloudinaryStorage
 
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True, verbose_name="Nome Categoria")
@@ -40,7 +41,14 @@ class Article(models.Model):
     content = models.TextField(verbose_name="Testo Completo dell'Articolo")
     
     # Supporto multimediale per l'archivio (ascoltare e guardare)
-    audio_track = models.FileField(upload_to='audio_fragments/', blank=True, null=True, verbose_name="Traccia Audio (Opzionale)")
+    # AGGIUNTO LO STORAGE QUI SOTTO:
+    audio_track = models.FileField(
+        upload_to='audio_fragments/', 
+        blank=True, 
+        null=True, 
+        verbose_name="Traccia Audio (Opzionale)",
+        storage=VideoMediaCloudinaryStorage()
+    )
     video_url = models.URLField(blank=True, null=True, verbose_name="Link Video (Opzionale)")
 
     is_featured = models.BooleanField(default=False, verbose_name="In Evidenza")
@@ -58,7 +66,12 @@ class Article(models.Model):
 class AudioChapter(models.Model):
     article = models.ForeignKey(Article, on_delete=models.CASCADE, related_name='audio_chapters')
     title = models.CharField(max_length=200, verbose_name="Titolo Traccia/Capitolo")
-    audio_file = models.FileField(upload_to='audiobooks/')
+    
+    # AGGIUNTO LO STORAGE QUI SOTTO:
+    audio_file = models.FileField(
+        upload_to='audiobooks/',
+        storage=VideoMediaCloudinaryStorage()
+    )
     order = models.PositiveIntegerField(default=0, verbose_name="Ordine (1, 2, 3...)")
 
     class Meta:
