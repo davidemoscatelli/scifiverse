@@ -40,46 +40,20 @@
             <h2 class="text-4xl md:text-5xl font-serif text-white mb-2">{{ featured_article.title }}</h2>
             <p class="text-sm text-gray-300 mb-3">{{ featured_article.release_year }}</p>
             
-            <div class="flex items-center gap-2 mb-4">
-                <span class="text-sm font-bold text-scifi-accent">{{ featured_article.team_rating|floatformat:1 }}</span>
-                <span class="text-[10px] text-gray-500 uppercase tracking-widest mt-0.5">Valutazione</span>
-            </div>
-            
             <p class="text-sm text-gray-300 line-clamp-2 md:line-clamp-3 mb-5 max-w-[85%]">{{ featured_article.short_description }}</p>
-            <div class="border border-scifi-accent text-scifi-accent text-xs font-semibold tracking-widest uppercase py-3 px-6 rounded w-max">Leggi Recensione</div>
+            
+            <div class="border border-scifi-accent text-scifi-accent text-xs font-semibold tracking-widest uppercase py-3 px-6 rounded w-max">
+                {% if featured_article.media_type == 'audiolibri' %}
+                    Ascolta Audiolibro
+                {% elif featured_article.media_type == 'racconti' %}
+                    Leggi Racconto
+                {% else %}
+                    Leggi Recensione
+                {% endif %}
+            </div>
         </div>
     </section>
     {% endif %}
-
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
-        <a href="?media_type=film" class="bg-scifi-card border border-scifi-border rounded-xl p-4 flex items-center gap-4 transition hover:border-scifi-accent">
-            <div class="w-12 h-12 rounded-full border border-scifi-border flex items-center justify-center text-scifi-accent">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
-            </div>
-            <div>
-                <h3 class="text-sm tracking-widest uppercase text-white font-semibold mb-0.5">Film</h3>
-                <p class="text-[10px] text-scifi-muted">Recensioni visive <span class="text-scifi-accent">&gt;</span></p>
-            </div>
-        </a>
-        <a href="?media_type=racconti" class="bg-scifi-card border border-scifi-border rounded-xl p-4 flex items-center gap-4 transition hover:border-scifi-accent">
-            <div class="w-12 h-12 rounded-full border border-scifi-border flex items-center justify-center text-scifi-accent">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-            </div>
-            <div>
-                <h3 class="text-sm tracking-widest uppercase text-white font-semibold mb-0.5">Racconti</h3>
-                <p class="text-[10px] text-scifi-muted">Narrativa testuale <span class="text-scifi-accent">&gt;</span></p>
-            </div>
-        </a>
-        <a href="?media_type=audiolibri" class="bg-scifi-card border border-scifi-border rounded-xl p-4 flex items-center gap-4 transition hover:border-scifi-accent">
-            <div class="w-12 h-12 rounded-full border border-scifi-border flex items-center justify-center text-scifi-accent">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
-            </div>
-            <div>
-                <h3 class="text-sm tracking-widest uppercase text-white font-semibold mb-0.5">Audiolibri</h3>
-                <p class="text-[10px] text-scifi-muted">Da ascoltare <span class="text-scifi-accent">&gt;</span></p>
-            </div>
-        </a>
-    </section>
 
     <section class="mb-10">
         <div class="flex justify-between items-center mb-6 border-b border-[#1f1f1f] pb-3">
@@ -89,12 +63,6 @@
                 <h3 class="text-sm font-serif tracking-widest text-white uppercase">Esplora: {{ active_media_type }}</h3>
             {% else %}
                 <h3 class="text-sm font-serif tracking-widest text-white uppercase">Ultimi Articoli</h3>
-            {% endif %}
-            
-            {% if search_query or active_media_type or active_category %}
-                <a href="{% url 'home' %}" class="text-[10px] tracking-widest uppercase text-gray-500 hover:text-scifi-accent">Rimuovi Filtri ✕</a>
-            {% else %}
-                <a href="{% url 'home' %}" class="text-[10px] tracking-widest uppercase text-scifi-accent">Vedi Tutti &gt;</a>
             {% endif %}
         </div>
         
@@ -106,23 +74,15 @@
                         <img src="{{ article.cover_image.url }}" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                     {% endif %}
                 </div>
-                
                 <div class="flex-1 py-1 pr-2 flex flex-col justify-center">
                     <span class="text-[9px] tracking-widest text-scifi-accent uppercase mb-1">{{ article.get_media_type_display }}</span>
                     <h4 class="font-serif text-base md:text-lg text-white mb-1 leading-tight group-hover:text-scifi-accent transition">{{ article.title }}</h4>
-                    
-                    <div class="flex items-center gap-3 mb-2 text-[10px] text-gray-500 uppercase tracking-wider">
-                        <span>{{ article.release_year }}</span>
-                        <span>•</span>
-                        <span class="text-scifi-accent font-bold">{{ article.team_rating|floatformat:1 }}/5</span>
-                    </div>
-                    <p class="text-[11px] text-gray-400 line-clamp-2 md:line-clamp-3 leading-snug">{{ article.short_description }}</p>
+                    <p class="text-[11px] text-gray-400 line-clamp-2">{{ article.short_description }}</p>
                 </div>
             </a>
             {% empty %}
             <div class="text-center py-10 border border-dashed border-[#2a2b29] rounded-xl">
-                <p class="text-scifi-muted font-serif text-lg mb-2">Nessun contenuto trovato.</p>
-                <p class="text-xs text-gray-500">Prova a cercare con un termine diverso o rimuovi i filtri.</p>
+                <p class="text-scifi-muted font-serif text-lg">Nessun contenuto trovato.</p>
             </div>
             {% endfor %}
         </div>
@@ -131,21 +91,21 @@
 
 <nav class="fixed bottom-0 w-full md:hidden bg-[#050505]/95 backdrop-blur-xl border-t border-[#1f1f1f] z-50 pb-safe">
     <div class="flex justify-between items-center px-6 pt-3 pb-4">
-        <a href="{% url 'home' %}" class="flex flex-col items-center {% if not active_media_type and not search_query %}text-scifi-accent{% else %}text-scifi-muted{% endif %} gap-1">
+        <a href="{% url 'home' %}" class="flex flex-col items-center {% if not active_media_type %}text-scifi-accent{% else %}text-scifi-muted{% endif %} gap-1">
             <svg class="w-6 h-6 fill-current" viewBox="0 0 24 24"><path d="M12 3l10 9h-3v9H5v-9H2L12 3z"/></svg>
             <span class="text-[9px] font-medium tracking-widest uppercase">Home</span>
         </a>
-        <a href="?media_type=film" class="flex flex-col items-center {% if active_media_type == 'film' %}text-scifi-accent{% else %}text-scifi-muted hover:text-white{% endif %} transition gap-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
+        <a href="?media_type=film" class="flex flex-col items-center {% if active_media_type == 'film' %}text-scifi-accent{% else %}text-scifi-muted{% endif %} transition gap-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z"/></svg>
             <span class="text-[9px] font-medium tracking-widest uppercase">Film</span>
         </a>
-        <a href="?media_type=racconti" class="flex flex-col items-center {% if active_media_type == 'racconti' %}text-scifi-accent{% else %}text-scifi-muted hover:text-white{% endif %} transition gap-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        <a href="?media_type=racconti" class="flex flex-col items-center {% if active_media_type == 'racconti' %}text-scifi-accent{% else %}text-scifi-muted{% endif %} transition gap-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
             <span class="text-[9px] font-medium tracking-widest uppercase">Racconti</span>
         </a>
-        <a href="#top" class="flex flex-col items-center text-scifi-muted hover:text-white transition gap-1">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <span class="text-[9px] font-medium tracking-widest uppercase">Cerca</span>
+        <a href="?media_type=audiolibri" class="flex flex-col items-center {% if active_media_type == 'audiolibri' %}text-scifi-accent{% else %}text-scifi-muted{% endif %} transition gap-1">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M20 12v5a2 2 0 01-2 2h-2v-6h4zM4 12v5a2 2 0 002 2h2v-6H4zM12 4a8 8 0 00-8 8v1a8 8 0 0116 0v-1a8 8 0 00-8-8z"/></svg>
+            <span class="text-[9px] font-medium tracking-widest uppercase">Audio</span>
         </a>
     </div>
 </nav>
