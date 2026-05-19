@@ -1,0 +1,39 @@
+# Ambiente Virtuale (Evita di caricare i pacchetti Python locali)
+venv/
+.venv/
+env/
+ENV/
+
+# Database locale (Evita di caricare il database SQLite di test)
+*.sqlite3
+db.sqlite3
+
+# File multimediali e statici locali (I caricamenti di test non vanno su Git)
+media/
+media_root/
+staticfiles/
+
+# File di configurazione sensibili (Se usi un file .env per le password)
+.env
+*.env
+
+# Cache di Python (File compilati automaticamente che creano solo confusione)
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Configurazioni degli editor di codice (VS Code, PyCharm, ecc.)
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# File di sistema (Specifici per Windows o Mac)
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store

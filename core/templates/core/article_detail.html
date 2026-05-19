@@ -1,0 +1,149 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+<div class="sticky top-0 w-full bg-[#050505]/95 backdrop-blur-xl border-b border-[#1f1f1f] z-40">
+    <div class="px-5 py-3 flex items-center justify-between max-w-4xl mx-auto">
+        <a href="{% url 'home' %}" class="text-scifi-accent hover:text-white transition flex items-center gap-2">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 19l-7-7 7-7"/></svg>
+        </a>
+        <div class="text-[12px] tracking-[0.2em] font-serif uppercase text-scifi-accent">{{ article.get_media_type_display }}</div>
+        <button class="text-scifi-muted hover:text-white transition">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/></svg> </button>
+    </div>
+</div>
+
+{% if article.media_type == 'racconti' or article.media_type == 'storie' %}
+
+<article class="p-5 md:p-10 max-w-2xl mx-auto pb-32">
+    <div class="text-center mb-16 mt-8">
+        <h1 class="text-4xl md:text-5xl font-serif text-white mb-6 leading-tight">{{ article.title }}</h1>
+        <p class="text-xs text-scifi-muted uppercase tracking-[0.2em]">Scritto da <span class="text-scifi-accent">{{ article.author.username }}</span></p>
+    </div>
+
+    {% if article.story_parts.all %}
+        {% for part in article.story_parts.all %}
+            <div class="mb-16">
+                {% if part.title %}
+                    <h2 class="text-2xl font-serif text-scifi-accent text-center mb-8 uppercase tracking-widest">{{ part.title }}</h2>
+                {% endif %}
+                <div class="prose prose-invert prose-p:text-[#d1d5db] prose-p:leading-[2.2] prose-p:text-[18px] prose-p:font-serif prose-p:text-justify max-w-none">
+                    {{ part.content|linebreaks }}
+                </div>
+            </div>
+            {% if not forloop.last %}
+                <div class="flex justify-center text-scifi-muted my-12 tracking-[1em]">***</div>
+            {% endif %}
+        {% endfor %}
+    {% else %}
+        <div class="prose prose-invert prose-p:text-[#d1d5db] prose-p:leading-[2.2] prose-p:text-[18px] prose-p:font-serif prose-p:text-justify max-w-none">
+            {{ article.content|linebreaks }}
+        </div>
+    {% endif %}
+</article>
+
+{% elif article.media_type == 'audiolibri' %}
+
+<article class="p-5 md:p-10 max-w-3xl mx-auto pb-32">
+    <div class="flex flex-col md:flex-row gap-8 items-center md:items-start mb-12 mt-6">
+        <div class="w-[200px] h-[200px] md:w-[250px] md:h-[250px] rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(203,161,101,0.15)] border border-[#2a2b29] shrink-0">
+            {% if article.cover_image %}
+                <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover">
+            {% endif %}
+        </div>
+        <div class="text-center md:text-left flex-1 flex flex-col justify-center h-full">
+            <span class="text-[10px] font-bold text-scifi-muted uppercase tracking-[0.2em] mb-2">Audiolibro</span>
+            <h1 class="text-3xl md:text-4xl font-serif text-white mb-3">{{ article.title }}</h1>
+            <p class="text-sm text-gray-400 mb-6">{{ article.short_description }}</p>
+            <p class="text-xs text-scifi-accent uppercase tracking-widest">Voce: {{ article.author.username }}</p>
+        </div>
+    </div>
+
+    <div class="bg-[#0f0f0f] border border-scifi-border rounded-2xl p-6 mb-8 sticky top-[60px] z-30 shadow-2xl">
+        <p id="now-playing-title" class="text-xs text-scifi-accent font-semibold tracking-wider uppercase mb-3 text-center">Seleziona una traccia</p>
+        <audio id="main-audio-player" controls class="w-full h-10 outline-none grayscale opacity-80 invert filter">
+            <source src="" type="audio/mpeg">
+            Il tuo browser non supporta l'audio.
+        </audio>
+    </div>
+
+    {% if article.audio_chapters.all %}
+    <div>
+        <h3 class="text-[11px] font-semibold tracking-[0.2em] text-gray-500 uppercase mb-4 pl-2">Tracce ({{ article.audio_chapters.count }})</h3>
+        <div class="space-y-2">
+            {% for chapter in article.audio_chapters.all %}
+            <button onclick="playChapter('{{ chapter.audio_file.url }}', '{{ chapter.title|escapejs }}')" class="w-full flex items-center justify-between bg-[#0a0a0a] hover:bg-[#1a1a1a] border border-[#1f1f1f] hover:border-scifi-accent transition rounded-xl p-4 text-left group">
+                <div class="flex items-center gap-4">
+                    <div class="w-8 h-8 rounded-full bg-[#1f1f1f] flex items-center justify-center text-scifi-accent group-hover:bg-scifi-accent group-hover:text-[#050505] transition">
+                        <svg class="w-4 h-4 ml-0.5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                    </div>
+                    <div>
+                        <span class="text-[10px] text-scifi-muted block mb-0.5">Traccia {{ chapter.order }}</span>
+                        <span class="text-sm font-medium text-white group-hover:text-scifi-accent transition">{{ chapter.title }}</span>
+                    </div>
+                </div>
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+    <script>
+        // Script per gestire la playlist
+        function playChapter(url, title) {
+            const player = document.getElementById('main-audio-player');
+            const titleDisplay = document.getElementById('now-playing-title');
+            player.src = url;
+            player.play();
+            titleDisplay.innerText = "IN RIPRODUZIONE: " + title;
+        }
+        // Auto-carica la prima traccia se esiste
+        window.onload = function() {
+            {% if article.audio_chapters.first %}
+            const primaTraccia = "{{ article.audio_chapters.first.audio_file.url }}";
+            const primoTitolo = "{{ article.audio_chapters.first.title|escapejs }}";
+            const player = document.getElementById('main-audio-player');
+            player.src = primaTraccia;
+            document.getElementById('now-playing-title').innerText = "PRONTA: " + primoTitolo;
+            {% endif %}
+        }
+    </script>
+    {% else %}
+        <p class="text-sm text-gray-500 italic text-center py-8 border border-dashed border-[#2a2b29] rounded-xl">Nessuna traccia audio caricata.</p>
+    {% endif %}
+</article>
+
+{% else %}
+
+<div class="w-full aspect-video bg-[#0f0f0f] relative shadow-2xl">
+    {% if article.cover_image %}
+        <img src="{{ article.cover_image.url }}" alt="{{ article.title }}" class="w-full h-full object-cover">
+    {% endif %}
+    <div class="absolute inset-0 bg-gradient-to-t from-[#050505] to-transparent"></div>
+</div>
+
+<article class="p-5 md:p-10 max-w-3xl mx-auto -mt-6 relative z-10 pb-20">
+    <div class="mb-8">
+        <span class="text-[10px] font-bold text-scifi-muted uppercase tracking-[0.2em]">{{ article.get_media_type_display }}</span>
+        <h1 class="text-4xl md:text-5xl font-serif text-white mt-1 mb-4">{{ article.title }}</h1>
+        <div class="flex items-center gap-4 text-xs text-scifi-muted mb-4 border-b border-[#2a2b29] pb-4">
+            <div class="flex items-center gap-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg> {{ article.release_year }}</div>
+        </div>
+    </div>
+
+    <div class="border border-scifi-border rounded-xl p-5 mb-8 bg-[#0a0a0a]">
+        <h4 class="text-[10px] tracking-widest text-scifi-muted uppercase mb-3">In Sintesi</h4>
+        <p class="text-sm text-gray-300 leading-relaxed">{{ article.short_description }}</p>
+    </div>
+
+    <div class="prose prose-invert prose-p:text-[#c0c0c0] prose-p:leading-loose prose-p:text-[15px] max-w-none prose-headings:text-scifi-accent prose-headings:font-serif prose-headings:font-normal prose-h2:text-xl prose-h2:uppercase prose-h2:tracking-widest">
+        {{ article.content|linebreaks }}
+    </div>
+
+    {% if article.team_rating %}
+    <div class="mt-12 flex flex-col md:flex-row items-center justify-center border-t border-b border-scifi-border py-8 gap-4">
+        <span class="text-[10px] tracking-widest text-scifi-muted uppercase">Valutazione Redazione</span>
+        <div class="text-4xl font-serif text-scifi-accent">{{ article.team_rating|floatformat:1 }}<span class="text-xl text-scifi-muted">/5</span></div>
+    </div>
+    {% endif %}
+</article>
+
+{% endif %}
+{% endblock %}
