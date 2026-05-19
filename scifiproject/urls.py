@@ -1,13 +1,17 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from django.conf import settings
-from django.conf.urls.static import static
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')), # Aggiungi questa riga
+    path('', include('core.urls')), 
 ]
 
-# Permette di visualizzare le immagini caricate durante lo sviluppo
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# RIMOSSO l'if settings.DEBUG. 
+# In questo modo forziamo Django a mostrare i media anche in produzione.
+urlpatterns += [
+    re_path(r'^media/(?P<path>.*)$', serve, {
+        'document_root': settings.MEDIA_ROOT,
+    }),
+]
